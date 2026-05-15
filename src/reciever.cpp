@@ -1,32 +1,32 @@
 #include <SPI.h>
 #include <RF24.h>
 #include <nRF24L01.h>
-//RECIEVER
 
 RF24 radio(9, 8);
-const byte address[10] = "ADDRESS01";
+const byte address[6] = "ADDR1"; // Must match Mega 
 
 void setup() {
- Serial.begin(9600);
+  Serial.begin(9600);
   if (!radio.begin()) {
-   Serial.println("Receiver: Radio hardware not found!");
-   while (1);
- }
+    Serial.println("Receiver: Radio hardware not found!");
+    while (1);
+  }
 
- radio.openReadingPipe(0, address);
- radio.setPALevel(RF24_PA_MIN);
- radio.startListening();
+  // ENABLING ACK ON RECEIVER
+  radio.setAutoAck(true);             // Enable auto-acknowledgement
+  radio.openReadingPipe(1, address);  //  Changed from Pipe 0 to Pipe 1
+  
+  radio.setPALevel(RF24_PA_MIN);
+  radio.startListening();
   Serial.println("--- Receiver Listening ---");
 }
 
 void loop() {
- if (radio.available()) {
-   char txt[32] = ""; // Buffer to hold incoming message
-   radio.read(&txt, sizeof(txt));
-   Serial.print("Received: ");
-   Serial.println(txt);
- }
- else{
-  Serial.println("doodoofard");
- }
+  if (radio.available()) {
+    char txt[32] = ""; 
+    radio.read(&txt, sizeof(txt)); // Hardware sends ACK to Mega   here
+    
+    Serial.print("Received: ");
+    Serial.println(txt);
+  }
 }
